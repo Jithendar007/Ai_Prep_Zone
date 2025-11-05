@@ -3,13 +3,22 @@ from flask_cors import CORS
 import pandas as pd
 import os
 import re
+import json
 from google.cloud import dialogflow_v2 as dialogflow
 
-# --- Setup Google Dialogflow authentication ---
-# Replace 'service-account.json' with your actual key file name
-# Make sure this file is in the same directory as app.py
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "service-account.json"
-# Replace 'questionbot-lbwk' with your Dialogflow project ID
+# ✅ Create service-account.json dynamically on Render
+if "GOOGLE_APPLICATION_CREDENTIALS_JSON" in os.environ:
+    try:
+        cred = json.loads(os.environ["GOOGLE_APPLICATION_CREDENTIALS_JSON"])
+        with open("service-account.json", "w") as f:
+            json.dump(cred, f)
+        print("✅ Service account JSON created successfully")
+    except Exception as e:
+        print("❌ Failed to create credential file:", str(e))
+else:
+    print("❌ GOOGLE_APPLICATION_CREDENTIALS_JSON ENV VARIABLE NOT FOUND")
+
+# ✅ Initialize Dialogflow client only AFTER JSON is written
 project_id = "questionbot-lbwk"
 session_client = dialogflow.SessionsClient()
 
