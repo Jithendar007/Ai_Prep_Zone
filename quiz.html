@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Quiz Setup - AI Prepzone</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="quiz.css">
+</head>
+<body class="quiz-setup-page">
+   <video autoplay muted loop id="bg-video">
+    <source src="background2.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+
+  <div class="quiz-container" id="setupSection">
+    <h1>Setup Your Quiz</h1>
+
+    <!-- Topic Input -->
+    <div class="quiz-input">
+      <label for="topic">Topic:</label>
+      <input type="text" id="topic" placeholder="Enter your topic">
+    </div>
+
+    <!-- Number of Questions -->
+    <div class="quiz-input">
+      <label for="count">Number of Questions:</label>
+      <input type="number" id="count" min="1" max="50" value="5">
+    </div>
+
+    <!-- Difficulty Selection -->
+    <div class="quiz-input">
+      <label for="difficulty">Difficulty:</label>
+      <select id="difficulty">
+        <option value="easy">Easy</option>
+        <option value="medium">Medium</option>
+        <option value="hard">Hard</option>
+      </select>
+    </div>
+
+    <!-- Attempt Button -->
+    <button id="attemptBtn">Attempt Quiz</button>
+  </div>
+
+  <!-- Quiz Section (hidden at first) -->
+  <div class="quiz-container" id="quizSection" style="display:none;">
+    <h2 id="quizQuestion"></h2>
+    <ul id="quizOptions"></ul>
+
+    <div class="nav-buttons">
+          
+          <button id="showBtn">Show Answer</button>
+          <button id="submitAnswerBtn" style="display:none;">Submit Answer</button>
+          <button id="nextBtn">Next</button>
+    </div> 
+
+    <p id="feedback"></p>
+  </div>
+  
+
+  <div class="quiz-container" id="endScreen" style="display:none;">
+      <h2>Quiz Finished!</h2>
+      <h3 id="finalScore"></h3> <p>Great job completing the quiz.</p>
+      <div class="end-buttons">
+          <button id="playAgainBtn">Play Again</button>
+          <button id="reviewBtn">Review Answers</button>
+          <a href="explore.html" id="backExploreBtn">Back to Explore</a>
+    </div>
+    
+  </div>
+  
+  <div class="quiz-container" id="reviewSection" style="display:none;">
+  </div>
+
+  <!-- Link the same JavaScript -->
+  <script src="script.js"></script>
+  
+</body>
+</html>

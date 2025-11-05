@@ -1,0 +1,7 @@
+service-account.json
+node_modules/
+service-account.json
+.env
+__pycache__/
+*.db
+*.log

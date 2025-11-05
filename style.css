@@ -1,0 +1,238 @@
+/* Roboto from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+/* Reset browser defaults */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Full screen background */
+body {
+  font-family: 'Roboto', sans-serif;
+  color: white;
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;   /* vertically center content */
+  justify-content: flex-start; /* align left */
+  padding-left: 5%;      /* push content from left */
+  position: relative;    /* so z-index works */
+  overflow: hidden;      /* prevent scrollbars */
+}
+.bg-img {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover; /* covers entire screen */
+  z-index: -1; /* behind text */
+}
+
+/* Container box for title + button */
+.container {
+  max-width: 600px;
+  padding: 30px;
+  
+}
+/* Title (AI Prepzone) */
+h1 {
+  font-size: 3rem;
+  font-family: 'Roboto', sans-serif;
+  margin-bottom: 15px;
+  color: #a9d6ff; /* light blue */
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.6); /* glowing effect */
+}
+/* Subtitle */
+p {
+  font-size: 1.2rem;
+  margin-bottom: 30px;
+  opacity: 0.9;
+}
+/* Stylish button */
+.go-btn {
+  display: inline-block;
+  padding: 14px 40px;             /* Button size */
+  background: linear-gradient(45deg, #007bff, #0056b3); /* Nice blue gradient */
+  color: white;                   /* Text color */
+  font-size: 18px;
+  font-weight: bold;
+  border: none;                   /* Removes default button border */
+  border-radius: 30px;            /* Full rounded edges */
+  cursor: pointer;                /* Hand cursor */
+  text-decoration: none;          /* No underline */
+  box-shadow: 0px 4px 10px rgba(0,0,0,0.3); /* Soft shadow */
+  transition: all 0.3s ease-in-out;
+}
+/* Button hover effect */
+.go-btn:hover {
+  background: linear-gradient(45deg, #0056b3, #003f7f); /* darker blue */
+  transform: translateY(-3px); /* lift up a bit */
+  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+}
+/* Only for Explore page */
+body.explore-page {
+  background: white; /* full white background */
+  color: black; /* optional: text darker */
+  display: flex;        
+  justify-content: center;      
+  align-items: center;
+  position: static;  /* reset the absolute positioning from first page */
+  transform: none;
+}
+/* Background Video (works for all pages with #bg-video) */
+#bg-video {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1; /* behind content */
+}
+
+
+/* Cards wrapper (2 cards side by side) */
+.explore-wrapper {
+        /* Full white background */
+  display: flex;
+  gap: 50px;                      /* space between cards */
+}
+@media (max-width: 768px) {
+  .explore-container 
+  {
+    flex-direction: column; /* stack vertically */
+    gap: 30px;              /* space between cards */
+  }
+}
+
+/* Container for the cards */
+.explore-container {
+  display: flex;        
+  justify-content: center;      
+  align-items: center;          
+  height: 100vh;                
+  gap: 40px;                    
+}
+
+/* Each card */
+.card {
+  width: 450px;
+  height: 250px;
+  background: linear-gradient(135deg, #4fc3f7, #0288d1); /* shiny light blue gradient */
+  border-radius: 20px;
+  box-shadow: 0px 8px 25px rgba(79, 195, 247, 0.6); /* glowing shadow */
+  padding: 30px;
+  text-align: center;
+  color: white; /* text white */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+
+/* Hover effect */
+.card:hover {
+  transform: translateY(-12px);
+  box-shadow: 0px 12px 35px rgba(79, 195, 247, 0.9); /* stronger glow */
+}
+
+/* Card heading */
+.card h2 {
+  margin-bottom: 15px;
+  font-size: 1.8rem;
+  font-weight: bold;
+  text-shadow: 1px 1px 6px rgba(0,0,0,0.5); /* slight glow */
+}
+
+/* Card text */
+.card p {
+  margin-bottom: 25px;
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+/* Footer styling */
+footer {
+  position: fixed;      /* stays visible */
+  bottom: 0;            /* stick to bottom */
+  right: 0;             /* stick to right */
+  padding: 10px 20px;
+  background: rgba(0,0,0,0.6);
+  border-top-left-radius: 12px; /* optional rounded corner */
+  text-align: right;
+  color: white;
+}
+
+/* Container for footer buttons */
+.footer-buttons {
+  display: flex;                /* Side by side */
+  justify-content: center;      /* Center horizontally */
+  gap: 20px;                    /* Space between buttons */
+  margin-bottom: 10px;          /* Space below buttons for copyright */
+}
+
+/* Each footer button */
+.footer-btn {
+  display: inline-block;
+  padding: 10px 25px;
+  background: #4fc3f7;          /* Light blue */
+  color: white;
+  border-radius: 25px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+/* Footer button hover effect */
+.footer-btn:hover {
+  background: #007bb5;           /* Darker blue */
+  transform: translateY(-2px);   /* Slight lift effect */
+}
+
+/* Copyright text */
+.footer p {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+
+.quiz-btn {
+  display: inline-block;
+  padding: 14px 40px;             /* Button size */
+  background: linear-gradient(45deg, #007bff, #0056b3); /* Nice blue gradient */
+  color: white;                   /* Text color */
+  font-size: 18px;
+  font-weight: bold;
+  border: none;                   /* Removes default button border */
+  border-radius: 30px;            /* Full rounded edges */
+  cursor: pointer;                /* Hand cursor */
+  text-decoration: none;          /* No underline */
+  box-shadow: 0px 4px 10px rgba(0,0,0,0.3); /* Soft shadow */
+  transition: all 0.3s ease-in-out;
+}
+/* Button hover effect */
+.quiz-btn:hover {
+  background: linear-gradient(45deg, #0056b3, #003f7f); /* darker blue */
+  transform: translateY(-3px); /* lift up a bit */
+  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+}
+.qp-btn {
+  display: inline-block;
+  padding: 14px 40px;             /* Button size */
+  background: linear-gradient(45deg, #007bff, #0056b3); /* Nice blue gradient */
+  color: white;                   /* Text color */
+  font-size: 18px;
+  font-weight: bold;
+  border: none;                   /* Removes default button border */
+  border-radius: 30px;            /* Full rounded edges */
+  cursor: pointer;                /* Hand cursor */
+  text-decoration: none;          /* No underline */
+  box-shadow: 0px 4px 10px rgba(0,0,0,0.3); /* Soft shadow */
+  transition: all 0.3s ease-in-out;
+}
+/* Button hover effect */
+.qp-btn:hover {
+  background: linear-gradient(45deg, #0056b3, #003f7f); /* darker blue */
+  transform: translateY(-3px); /* lift up a bit */
+  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+}
