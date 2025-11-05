@@ -82,6 +82,7 @@ def get_csv_questions(params):
     any_param = str(params.get("any", "")).strip()
     q_type = str(params.get("Type", "")).strip()
     difficulty = str(params.get("Difficulty", "")).strip()
+    repeatation= str(params.get("Repeated","")).strip()
 
     filtered = df.copy()
 
@@ -95,6 +96,8 @@ def get_csv_questions(params):
         filtered = filtered[filtered["type"].str.contains(q_type, case=False, na=False)]
     if difficulty:
         filtered = filtered[filtered["difficulty"].str.lower() == difficulty.lower()]
+    if repeatation:
+        filtered = filtered[filtered[]]
 
     search_query = topic or any_param
     if search_query:
