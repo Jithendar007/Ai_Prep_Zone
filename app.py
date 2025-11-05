@@ -1,75 +1,90 @@
-import json
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+import pandas as pd
 import os
+import re
+import json
 from google.oauth2 import service_account
 from google.cloud import dialogflow_v2 as dialogflow
 
-# ✅ Create the JSON file if running on Render
+
+# =====================================================
+# ✅ Load & Create Service Account Credentials in Render
+# =====================================================
 if "GOOGLE_APPLICATION_CREDENTIALS_JSON" in os.environ:
-    cred_data = json.loads(os.environ["GOOGLE_APPLICATION_CREDENTIALS_JSON"])
-    with open("service-account.json", "w") as f:
-        json.dump(cred_data, f)
+    try:
+        cred_data = json.loads(os.environ["GOOGLE_APPLICATION_CREDENTIALS_JSON"])
+        with open("service-account.json", "w") as f:
+            json.dump(cred_data, f)
 
-    # ✅ Tell Google libraries to use this file
-    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "service-account.json"
-    print("✅ Service account loaded.")
+        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "service-account.json"
+        print("✅ Service account JSON created and environment variable set")
+    except Exception as e:
+        print("❌ Failed to write service account JSON:", e)
 else:
-    print("❌ GOOGLE_APPLICATION_CREDENTIALS_JSON not found!")
+    print("❌ GOOGLE_APPLICATION_CREDENTIALS_JSON not found! Make sure it is set in Render.")
 
-# ✅ Now safely initialize sessions client
+
+# =====================================================
+# ✅ Initialize Dialogflow Client (using our credentials)
+# =====================================================
 project_id = "questionbot-lbwk"
 credentials = service_account.Credentials.from_service_account_file("service-account.json")
 session_client = dialogflow.SessionsClient(credentials=credentials)
 
-# --- Initialize Flask app ---
+
+# =====================================================
+# ✅ Initialize Flask App
+# =====================================================
 app = Flask(__name__)
-# This line is crucial for allowing your HTML front-end to make requests to this server.
 CORS(app)
 
-# --- Load CSV and normalize column names ---
+
+# =====================================================
+# ✅ Load CSV File
+# =====================================================
 try:
     df = pd.read_csv("QUESTIONPAPER.csv", encoding="latin1")
     df.columns = df.columns.str.lower()
     df["year"] = df["year"].astype(str)
-except FileNotFoundError:
-    print("Error: QUESTIONPAPER.csv not found.", flush=True)
+except:
     df = pd.DataFrame()
-except LookupError:
-    print("Error: unknown encoding 'latin1' not supported. Trying another encoding...", flush=True)
-    try:
-        df = pd.read_csv("QUESTIONPAPER.csv", encoding="ISO-8859-1")
-        df.columns = df.columns.str.lower()
-        df["year"] = df["year"].astype(str)
-    except Exception as e:
-        print(f"Error loading CSV file: {e}", flush=True)
-        df = pd.DataFrame()
+    print("❌ CSV Load Failed")
 
-# --- Helper function to format questions ---
+
+# =====================================================
+# ✅ Helper to Format Questions
+# =====================================================
 def format_questions(questions, limit=None):
     if questions.empty:
-        return None  # Return None so the webhook can handle the fallback
+        return None
     if limit:
         questions = questions.head(limit)
-    
+
     formatted_list = []
     for row in questions.itertuples(index=False):
         formatted_list.append(
             f"<b>[{row.year}] {row.sub} ({row.examtype})</b><br>Q: {row.question}"
         )
-    
     return "\n\n".join(formatted_list)
 
-# --- Function to call Dialogflow API to detect intent (returns Dialogflow's result structure) ---
-# This is necessary for the /chat endpoint to get the parameters
+
+# =====================================================
+# ✅ Detect Intent + Extract Parameters from Dialogflow
+# =====================================================
 def detect_intent_and_get_params(text, session_id="12345", language_code="en"):
     session = session_client.session_path(project_id, session_id)
-    text_input = dialogflow.types.TextInput(text=text, language_code=language_code)
-    query_input = dialogflow.types.QueryInput(text=text_input)
-    response = session_client.detect_intent(session=session, query_input=query_input)
-    
-    # Return the entire query_result object
+    text_input = dialogflow.TextInput(text=text, language_code=language_code)
+    query_input = dialogflow.QueryInput(text=text_input)
+    response = session_client.detect_intent(
+        request={"session": session, "query_input": query_input}
+    )
     return response.query_result
 
-# --- Unified logic for querying the CSV data (moved from webhook) ---
+
+# =====================================================
+# ✅ Filter Questions According to Parameters
+# =====================================================
 def get_csv_questions(params):
     year = str(params.get("Year", "")).strip()
     limit = int(params.get("number", 2)) if params.get("number") else 2
@@ -78,11 +93,10 @@ def get_csv_questions(params):
     topic = str(params.get("Topic", "")).strip()
     any_param = str(params.get("any", "")).strip()
     q_type = str(params.get("Type", "")).strip()
-    difficulty=str(params.get("Difficulty","")).strip()
-    print("Unique Subjects:", df["sub"].unique())
-    print("Unique Exam Types:", df["examtype"].unique())
-    print("Unique Difficulty:", df["difficulty"].unique())
+    difficulty = str(params.get("Difficulty", "")).strip()
+
     filtered = df.copy()
+
     if year:
         filtered = filtered[filtered["year"] == year]
     if exam_type:
@@ -96,63 +110,46 @@ def get_csv_questions(params):
 
     search_query = topic or any_param
     if search_query:
-        # Using regular expressions to handle "OR" logic in search query
         regex_query = '|'.join(re.escape(s) for s in re.split(r'\s+or\s+', search_query, flags=re.IGNORECASE))
         filtered = filtered[filtered["question"].str.contains(regex_query, case=False, na=False)]
-    
+
     return format_questions(filtered, limit)
 
-# --- New Route for your custom HTML front-end ---
+
+# =====================================================
+# ✅ Frontend /chat Endpoint
+# =====================================================
 @app.route("/chat", methods=["POST"])
 def chat():
     req = request.get_json()
     user_message = req.get("message")
     session_id = req.get("sessionId")
-    
+
     if not user_message:
-        return jsonify({"fulfillmentText": "No message provided."}), 400
+        return jsonify({"fulfillmentText": "No message provided."})
 
-    print(f"User Message from HTML: {user_message}", flush=True)
-
-    # 1. Use Dialogflow to get the intent and parameters
     query_result = detect_intent_and_get_params(user_message, session_id)
     intent = query_result.intent.display_name
     params = dict(query_result.parameters)
-    
-    response_text = "Sorry, I didn't understand that."
-    
-    # 2. If it's the target intent, use the extracted parameters to query the CSV
+
     if intent.lower() == "get_questions_by_intent":
         csv_response = get_csv_questions(params)
-        
-        if csv_response:
-            response_text = csv_response
-        else:
-            # Fallback to Dialogflow's default response if no questions found
-            response_text = query_result.fulfillment_text
-    else:
-        # Use Dialogflow's fulfillment for non-CSV intents (like greetings)
-        response_text = query_result.fulfillment_text
-    
-    return jsonify({"fulfillmentText": response_text})
+        return jsonify({"fulfillmentText": csv_response or query_result.fulfillment_text})
+
+    return jsonify({"fulfillmentText": query_result.fulfillment_text})
 
 
-# --- Webhook route to receive messages from Dialogflow ---
+# =====================================================
+# ✅ Dummy Webhook Endpoint (optional for Dialogflow)
+# =====================================================
 @app.route("/webhook", methods=["POST"])
 def webhook():
-    # This route is now a placeholder. For a *proper* Dialogflow integration, 
-    # you would keep the logic here as it was. However, since the custom 
-    # frontend is bypassing it, the logic is consolidated into the /chat route.
-    # For a fully separate webhook, you would use:
-    # req = request.get_json()
-    # params = req.get("queryResult", {}).get("parameters", {})
-    # intent = req.get("queryResult", {}).get("intent", {}).get("displayName", "")
-    # ... and then call get_csv_questions(params) if intent matches.
-    
-    # Since the custom frontend handles the main logic, this webhook can return 
-    # a simple success message for Dialogflow's testing purposes.
-    return jsonify({"fulfillmentText": "Webhook successfully received and processed the request (if intent matched)."}), 200
+    return jsonify({"fulfillmentText": "Webhook connected ✅"}), 200
 
+
+# =====================================================
+# ✅ Run Server
+# =====================================================
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
