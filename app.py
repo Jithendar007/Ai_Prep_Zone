@@ -7,37 +7,25 @@ import json
 from google.oauth2 import service_account
 from google.cloud import dialogflow_v2 as dialogflow
 
-
-# =====================================================
-# ✅ Load & Create Service Account Credentials in Render
-# =====================================================
+# ✅ Create the JSON file if running on Render
 if "GOOGLE_APPLICATION_CREDENTIALS_JSON" in os.environ:
-    try:
-        cred_data = json.loads(os.environ["GOOGLE_APPLICATION_CREDENTIALS_JSON"])
-        with open("service-account.json", "w") as f:
-            json.dump(cred_data, f)
-
-        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "service-account.json"
-        print("✅ Service account JSON created and environment variable set")
-    except Exception as e:
-        print("❌ Failed to write service account JSON:", e)
+    cred_data = json.loads(os.environ["GOOGLE_APPLICATION_CREDENTIALS_JSON"])
+    with open("service-account.json", "w") as f:
+        json.dump(cred_data, f)
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "service-account.json"
+    print("✅ Service account loaded.")
 else:
-    print("❌ GOOGLE_APPLICATION_CREDENTIALS_JSON not found! Make sure it is set in Render.")
+    print("❌ GOOGLE_APPLICATION_CREDENTIALS_JSON not found!")
 
-
-# =====================================================
-# ✅ Initialize Dialogflow Client (using our credentials)
-# =====================================================
+# ✅ Now safely initialize sessions client
 project_id = "questionbot-lbwk"
 credentials = service_account.Credentials.from_service_account_file("service-account.json")
 session_client = dialogflow.SessionsClient(credentials=credentials)
 
-
-# =====================================================
-# ✅ Initialize Flask App
-# =====================================================
+# ✅ Initialize Flask app
 app = Flask(__name__)
 CORS(app)
+
 
 
 # =====================================================
