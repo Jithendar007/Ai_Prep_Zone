@@ -101,7 +101,6 @@ def get_csv_questions(params):
     print(filtered.columns)
 
     if year:
-        print("hey")
         filtered = filtered[filtered["year"] == year]
 
     if exam_type:
@@ -114,7 +113,6 @@ def get_csv_questions(params):
         filtered = filtered[filtered["type"].str.contains(q_type, case=False, na=False, regex=False)]
 
     if difficulty:
-        print("Hello")
         filtered = filtered[filtered["difficulty"].str.lower().str.contains(difficulty, na=False, regex=False, case=False)]
         print(filtered.columns)
 
@@ -136,13 +134,6 @@ def get_csv_questions(params):
         return f"I couldn't find any questions matching the criteria ({filter_str}). Try being less specific!"
 
     return format_questions(filtered, limit)
-
-@app.route("/api_chat", methods=["POST"])
-import google.generativeai as genai
-
-genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
-
-model = genai.GenerativeModel("gemini-pro")
 
 @app.route("/api_chat", methods=["POST"])
 def api_chat():
